@@ -1,0 +1,72 @@
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    flex-direction: column;
+}
+
+.controls > div {
+    margin: 15px;
+}
+
+.tasks {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.task {
+    margin: 20px;
+    width: 140px; 
+    flex: 1;
+    text-align: center;
+}
+
+.task button {
+    margin-top: 10px;
+}
+
+.name {
+    font-size: 18px;
+}
+
+.description {
+    font-size: 12px;
+}
+
+.buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.buttons button {
+    flex: 1;
+    max-width: 140px;
+}
+
+.info {
+    min-height: 72px;
+}
+
+.progress {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.progress > * {
+    margin-left: 5px;
+    text-align: center;
+}
+
+.vertical {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.vertical button {
+    width: 120px;
+}
