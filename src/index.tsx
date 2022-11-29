@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
   RouterProvider,
-  Route,
 } from "react-router-dom";
 import './index.css';
 import App from './App';
@@ -12,9 +11,10 @@ import { ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import red from '@mui/material/colors/red';
 import CssBaseline from '@mui/material/CssBaseline';
+import ComicNeueLight from "./fonts/ComicNeue-Light.ttf";
+import { GameStateProvider } from './GameService';
 
-
-const Ws = React.lazy(() => import("./WebSocket"))
+const Game = React.lazy(() => import("./Game"))
 
 const router = createBrowserRouter([
   {
@@ -22,9 +22,9 @@ const router = createBrowserRouter([
     element: <App></App>
   },
   {
-    path: "/websocket",
+    path: "/game",
     element: <React.Suspense fallback={<>...</>}>
-      <Ws/>
+      <Game/>
     </React.Suspense>
 
   }
@@ -42,8 +42,10 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RouterProvider router={router} />
+      <GameStateProvider>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </GameStateProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

@@ -1,5 +1,5 @@
 {
-  "name": "amongus-front",
+  "name": "fartian-front",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -27,6 +27,7 @@
     "use-sound": "^4.0.1",
     "web-vitals": "^2.1.4"
   },
+  "proxy": "https://127.0.0.1:444/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -50,5 +51,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "file-loader": "^6.2.0"
   }
 }
