@@ -17,7 +17,7 @@ export interface ClientEvents extends SharedEvents {
 }
 
 export interface ServerEvents extends SharedEvents {
-    lobbyJoined: (lobby: ILobby) => void;
+    lobbyJoined: (lobby: ILobby, tasks: ITask[]) => void;
 }
 
 export const socket: Socket<ServerEvents, ClientEvents> = io(socketUrl, {

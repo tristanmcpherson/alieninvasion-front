@@ -28,7 +28,12 @@ const Game = () => {
     const [gameState, setGameState] = useGameState();
     const tasks = gameState.tasks;
 
-    const setTasks = (tasks: ITask[]) => setGameState({ tasks });
+    const setTasks = (state: (tasks: ITask[]) => ITask[]) => {
+        setGameState(old => { 
+            const newTasks = state(old.tasks);
+            return { ...gameState, tasks: newTasks }
+        });
+    };
 
     const [showCompleted, setShowCompleted] = useState(false);
     const [canPlayAudio, setCanPlayAudio] = useState(false);
@@ -42,14 +47,30 @@ const Game = () => {
     });
 
     useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (!gameState.lobby) {
+                navigate({ pathname: "/"})
+                return;
+            }
+        }, 1000)
+        return () => clearTimeout(timeout);
+    }, []);
+
+    useEffect(() => {
         //setCanUseAudio(audioContext.state !== "suspended");
     }, []);
 
     const fetchData = () => {
-        if (gameState.lobby) {
-            fetch(`/api/task/${gameState.lobby._id}`)
+        if (gameState.lobby && socket.connected) {
+            fetch(`/api/task/${gameState.lobby._id}/${socket.id}`)
+                .then(response => {
+                    if (response.status === 404 || response.status === 400) {
+                        navigate({ pathname: "/" });
+                    }
+                    return response;
+                })
                 .then(response => response.json())
-                .then(data => setTasks(data));
+                .then(data => setTasks(() => data));
         }
     };
     useEffect(() => {
@@ -60,23 +81,23 @@ const Game = () => {
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            socket.emit("ping");
-        }, 1000);
-        return () => {
-            clearInterval(interval);
-        }
-    }, []);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         socket.emit("ping");
+    //     }, 1000);
+    //     return () => {
+    //         clearInterval(interval);
+    //     }
+    // }, []);
 
     useEffect(() => {
         socket.on("connect", () => setIsConnected(true));
         socket.on("disconnect", () => setIsConnected(false));
 
         socket.on("updateTaskStatus", (task) => {
-            //console.log(task._id + " : " + task.completed);
+            console.log(task.id + " : " + task.completed);
             //const newTasks = tasks;            
-            setTasks(tasks.map(t => t._id === task._id ? task : t));
+            setTasks(tasks => tasks.map(t => t.id === task.id ? task : t));
         });
 
         socket.on("assemble", () => {
@@ -122,27 +143,27 @@ const Game = () => {
 
     const handleClickSendMessage = useCallback(() => socket.emit("assemble"), []);
 
-    const setStatus = (_id: string, completed: boolean) => {
+    const setStatus = (id: string, completed: boolean) => {
         const updateMessage: ITask = {
-            _id,
+            id,
             completed
         };
         socket.emit("updateTaskStatus", updateMessage);
     };
 
-    const progress = tasks ? (tasks.filter(t => t.completed).length / tasks.length) * 100 : 0;
+    const progress = (tasks && tasks.length !== 0) ? (tasks.filter(t => t.completed).length / tasks.length) * 100 : 0;
 
     const renderTask = (task: ITask) => {
-        return <div className="task" key={task._id}>
+        return <div className="task" key={task.id}>
             <div className="info">
                 <div className='name'>{task.name}</div>
                 <div className="description">{task.description}</div>
             </div>
             {showCompleted ? <Box sx={{ color: task.completed ? "success.main" : "error.main" }}>{task.completed ? "Completed" : "Not Completed"}</Box> : null}
             <div className="vertical">
-                <Button variant="outlined" onClick={() => setStatus(task._id, true)}>Complete</Button>
+                <Button variant="outlined" onClick={() => setStatus(task.id, true)}>Complete</Button>
                 <ThemeProvider theme={redTheme}>
-                    <Button variant="outlined" onClick={() => setStatus(task._id, false)}>Sabotage</Button>
+                    <Button variant="outlined" onClick={() => setStatus(task.id, false)}>Sabotage</Button>
                 </ThemeProvider>
             </div>
         </div>;

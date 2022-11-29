@@ -15,8 +15,8 @@ function App() {
   const [gameState, setGameState] = useGameState();
 
   useEffect(() => {
-    socket.on("lobbyJoined", (lobby) => {
-      setGameState({ lobby, ...gameState });
+    socket.on("lobbyJoined", (lobby, tasks) => {
+      setGameState({ tasks, lobby });
       navigate({ pathname: "game" });
     });
     return () => {

@@ -23,7 +23,8 @@ const router = createBrowserRouter([
   },
   {
     path: "/game",
-    element: <React.Suspense fallback={<>...</>}>
+    // loader instead of ...
+    element: <React.Suspense fallback={<>...</>}> 
       <Game/>
     </React.Suspense>
 
