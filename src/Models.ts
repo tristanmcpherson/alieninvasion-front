@@ -8,10 +8,23 @@ export interface ITask {
 export interface ILobby {
     // id of room to be used with socketio
     _id: string
-    players: Array<string>
+    players: Array<IPlayer>
 }
 
 export interface IGameState {
     lobby?: ILobby,
-    tasks: Array<ITask>
+    tasks: Array<ITask>,
+	currentPlayer: IPlayer|null
+}
+
+export interface IPlayer {
+	_id: string,
+	name: string,
+	character: string
+}
+
+export interface ICharacter {
+    _id: string,
+    name: string,
+    description: string
 }

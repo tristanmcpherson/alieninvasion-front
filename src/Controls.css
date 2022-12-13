@@ -13,6 +13,7 @@
 .tasks {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .task {
