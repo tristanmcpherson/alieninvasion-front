@@ -19,7 +19,6 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
     const [characterName, setCharacterName] = useState<string | undefined>("Selecting...");
     const [characterTitle, setCharacterTitle] = useState<string | undefined>(character?.title);
 
-
     useEffect(() => {
         if (characterName !== character?.name) {
             setCharacterName(character?.name ?? "Selecting...");
@@ -58,6 +57,7 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
     const fadeInTitle = useTransition([characterTitle], {
         ref: fadeInTitleApi,
         from: { opacity: 0 },
+        to: { opacity: 1 },
         enter: { opacity: 1 },
         leave: { opacity: 0 },
         config: { duration: 1000 },

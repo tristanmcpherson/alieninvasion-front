@@ -1,47 +1,19 @@
-import { Box, Divider, Stack, Dialog, Button } from '@mui/material';
-import React, { useEffect, useRef, useState } from "react";
-import { animated, useTransition } from "react-spring";
+import { Box, Divider, Stack, Button } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { animated, useTransition, useSpring, useSpringRef, useChain } from '@react-spring/web';
 import { Card } from "./Card";
 import { useGameState } from './GameService';
 import { Loader } from "./Loader";
-import { IGameState, IPlayer } from "./Models";
+import { ICharacter, IPlayer } from "./Models";
 import { socket } from "./WebSocket";
 import { useNavigate } from 'react-router-dom';
-import styles from "./Lobby.module.css";
 import { CharacterSelect } from './CharacterSelect';
+import { Characters, Icons } from './images/Images';
+import BlurOnIcon from '@mui/icons-material/BlurOn';
 
-
-const PlayerCard = ({ player }:
-	{
-		player: IPlayer
-	}) => {
-	const character: string = "cotton_streaker" as string as any;
-
-	return <Box width={300}>
-		<div className={[styles.border_animate, styles.selecting].join(" ")}>
-			<Box
-				sx={{
-					bgcolor: 'background.paper',
-					boxShadow: 1,
-					borderRadius: 2,
-					p: 2,
-					minWidth: 300,
-					zIndex: 3
-				}}
-			>
-				<Stack direction={"row"} justifyContent={"space-between"}>
-					<Box>
-						<Box sx={{ color: 'text.secondary', display: 'inline', fontSize: 14 }}>
-							{player.name}</Box>
-						<Box sx={{ color: 'text.primary', fontSize: 28, fontWeight: 'medium' }}>
-							{player.character ?? "Selecting..."}
-						</Box>
-					</Box>
-				</Stack>
-			</Box>
-		</div>
-	</Box>;
-};
+import { useTimeout } from './useTimeout';
+import { PlayerCard } from './PlayerCard';
+import AnimatedText from './AnimatedText';
 
 
 const Lobby = () => {
@@ -50,49 +22,72 @@ const Lobby = () => {
 	// useful to have entirety of gamestate?
 	// maybe just use parts, then update isn't as bad?
 	const [gameState, setGameState] = useGameState();
-	const [character] = useState<string | null>();
+	const [currentCharacter, setCurrentCharacter] = useState<string | null>(gameState.currentPlayer?.character ?? null);
 	const [showCharacterSelection, setShowCharacterSelection] = useState(false);
+	
+	// useTimeout(() => {
+	// 	setShowCharacterSelection(true);
+	// }, currentCharacter ? null : 2000);
+
+	useEffect(() => {
+		// ... preload images ... - ps i hate this
+		Array.from(Icons.values()).map(image => new Image().src = image)
+	}, []);
 
 	useEffect(() => {
 		socket.on("lobbyJoined", (lobby, player) => {
 			setGameState(gs => {
 				return {
 					...gs,
-					lobby
-				};
+					lobby,
+					currentPlayer: gs.currentPlayer || !gs.lobby ? player : null
+				}
 			});
 		});
 
 		socket.on("lobbyLeft", (playerId) => {
 			setGameState(gs => {
 				const lobby = gs.lobby;
+				if (!lobby) {
+					return gs;
+				}
 				const players = lobby?.players ?? [];
 
 				return {
 					...gs,
-					lobby: { ...lobby, players: players.filter(p => p._id !== playerId) },
-				} as IGameState;
+					lobby: { ...lobby, players: players.filter(p => p._id !== playerId) }
+				};
 			})
 		});
 
-	}, [setGameState]);
+		socket.on("characterSelected", (playerId, character) => {
+			setGameState(gameState => {
+				const lobby = gameState.lobby;
+				if (!lobby) {
+					return gameState;
+				}
+				const players = lobby.players ?? [];
 
-	useEffect(() => {
-		if (character === null || character === "") {
-			const timeout = setTimeout(() => {
-				setShowCharacterSelection(true);
-			}, 2000);
+				return {
+					...gameState,
+					lobby: { ...lobby, players: players.map(p => p._id === playerId ? { ...p, character } : p) }
+				};
+			})
+		});
 
-
-			return () => clearTimeout(timeout);
+		return () => {
+			socket.off("lobbyJoined");
+			socket.off("lobbyLeft");
+			socket.off("characterSelected");
 		}
-	}, [character]);
+	}, [setGameState]);
 
 	// add polling for lobby info
 	useEffect(() => {
 
 		const timeout = setTimeout(() => {
 			if (!gameState.lobby) {
+				console.log("lobby lost. returning to home.");
 				navigate({ pathname: "/" });
 			}
 		}, 1000);
@@ -100,31 +95,40 @@ const Lobby = () => {
 		return () => clearTimeout(timeout);
 	}, [navigate, gameState.lobby]);
 
-	const transitions = useTransition(gameState.lobby?.players ?? [], {
+	console.log(gameState?.lobby);
+
+	const transitions = useTransition(gameState.lobby?.players.sort((a, _) => a._id === socket.id ? -1 : 0) ?? [], {
 		//api: 
-		key: (player: IPlayer) => player._id,
+		keys: (player: IPlayer) => player._id,
 		from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
 		enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
 		leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
+		
 	});
 
 	if (!gameState.lobby) {
-		console.log("WHAT");
+		console.log("No game lobby on mount. Using loader");
 		return <><Loader open={true} /></>;
 	}
-	console.log(gameState.lobby.players);
 
+	const AnimatedPlayerCard = animated(PlayerCard);
 	return <>
-		<CharacterSelect show={showCharacterSelection} />
+		<CharacterSelect show={showCharacterSelection} onClose={(characterId) => {
+			setShowCharacterSelection(false)
+			if (characterId && characterId !== gameState.lobby?.players.find(p => p._id === socket.id)?.character) {
+				socket.emit("characterSelected", characterId);
+			}
+		}} />
 		<Card>
 			<Stack justifyContent={'center'} alignItems={'center'}>
 				<Box sx={{ color: 'text.secondary' }}>Lobby code</Box>
-				<Box sx={{ color: 'text.primary', fontSize: 36 }}>{gameState.lobby!._id}</Box>
+				<AnimatedText text={gameState.lobby!._id}></AnimatedText>
+				{/* <Box sx={{ color: 'text.primary', fontSize: 36 }}>{gameState.lobby!._id}</Box> */}
 				<Divider sx={{ width: '100%' }}></Divider>
-				<Stack mt={2} direction={"column"}>
+				<Stack mt={2} mb={2} direction={"column"}>
 					{transitions((style, item) => (
-						<animated.div key={item._id} style={{ "margin": "10px", ...style }}>
-							<PlayerCard player={item}></PlayerCard>
+						<animated.div style={style} key={item._id}>
+							<PlayerCard key={item._id} player={item} onCharacterSelect={() => setShowCharacterSelection(true)}></PlayerCard>
 						</animated.div>
 					))}
 				</Stack>

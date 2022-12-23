@@ -1,9 +1,8 @@
 import React, { createRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import {
-	BrowserRouter,
 	createBrowserRouter,
-	Route,
+	RouteObject,
 	RouterProvider,
 	useLocation,
 	useOutlet,
@@ -16,7 +15,9 @@ import { GameStateProvider } from './GameService';
 import { Loader } from './Loader';
 import CssBaseline from '@mui/material/CssBaseline';
 import './index.css';
-import { animated, useTransition } from 'react-spring';
+import { animated, useTransition } from '@react-spring/web';
+import { SocketStateProvider } from './WebSocket';
+import { ConnectionComponent } from './ConnectionComponent';
 const Game = React.lazy(() => import("./Game"));
 const Lobby = React.lazy(() => import("./Lobby"));
 
@@ -25,22 +26,22 @@ const withLoader = (Component: React.ComponentType) =>
 		<Component></Component>
 	</React.Suspense>
 
-const routes = [
+const routes: RouteObject[] = [
 	{
 		path: "/",
 		element: <App></App>,
-		nodeRef: createRef<HTMLDivElement>()
+		//nodeRef: createRef<HTMLDivElement>()
 	},
 	{
 		path: "/game",
 		// loader instead of ...
 		element: withLoader(Game),
-		nodeRef: createRef<HTMLDivElement>()
+		//nodeRef: createRef<HTMLDivElement>()
 	},
 	{
 		path: "/lobby",
 		element: withLoader(Lobby),
-		nodeRef: createRef<HTMLDivElement>()
+		//nodeRef: createRef<HTMLDivElement>()
 	}
 ];
 
@@ -48,37 +49,71 @@ const theme = createTheme({
 	palette: {
 		mode: 'dark',
 	},
+	components: {
+		MuiCssBaseline: {
+		  styleOverrides: {
+			body: {
+			  scrollbarColor: "#6b6b6b #2b2b2b",
+			  "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+				backgroundColor: "#2b2b2b",
+			  },
+			  "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+				borderRadius: 8,
+				backgroundColor: "#6b6b6b",
+				minHeight: 24,
+				border: "3px solid #2b2b2b",
+			  },
+			  "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus": {
+				backgroundColor: "#959595",
+			  },
+			  "&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active": {
+				backgroundColor: "#959595",
+			  },
+			  "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
+				backgroundColor: "#959595",
+			  },
+			  "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
+				backgroundColor: "#2b2b2b",
+			  },
+			},
+		  },
+		},
+	  },
 });
 
 const Index = () => {
 	const location = useLocation();
 	const outlet = useOutlet();
-	const { nodeRef } = routes.find((route) => route.path === location.pathname) ?? {}
+	//const { nodeRef } = routes.find((route) => route.path === location.pathname) ?? {}
 
 	const transitions = useTransition(location, {
 		key: (location: Location) => location.pathname,
 		from: { opacity: 0 },
 		enter: { opacity: 1 }
-	})
+	});
 
-	if (!nodeRef) {
-		return <>OOPS</>;
-	}
+	// if (!nodeRef) {
+	// 	return <>OOPS</>;
+	// }
 
 	return (
 		<ThemeProvider theme={theme}>
-			<GameStateProvider>
-				<CssBaseline />
-				<div className="App">
-					{transitions((props, item) => (
-						<animated.div key={item.pathname} style={props}>
-							<div ref={nodeRef} className="page">
-								{outlet}
-							</div>
-						</animated.div>
-					))}
-				</div>
-			</GameStateProvider>
+			<SocketStateProvider>
+				<GameStateProvider>
+					<ConnectionComponent>
+						<CssBaseline />
+						<div className="App">
+							{transitions((props, item) => (
+								<animated.div key={item.pathname} style={props}>
+									<div className="page">
+										{outlet}
+									</div>
+								</animated.div>
+							))}
+						</div>
+					</ConnectionComponent>
+				</GameStateProvider>
+			</SocketStateProvider>
 		</ThemeProvider>
 	);
 };
@@ -87,7 +122,7 @@ const router = createBrowserRouter([
 	{
 		path: '/',
 		element: <Index />,
-		children: routes,
+		children: routes
 	},
 ]);
 

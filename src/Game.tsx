@@ -10,7 +10,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { ITask } from './Models';
 import { socket } from './WebSocket';
 import { useGameState } from './GameService';
-import { animated, config, useSpring, useTrail, UseTrailProps } from 'react-spring';
+import { animated, config, useSpring, useTrail, UseTrailProps } from '@react-spring/web';
 import { Loader } from './Loader';
 import "./Controls.css";
 

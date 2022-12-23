@@ -1,6 +1,6 @@
 import Paper from "@mui/material/Paper";
 import React from "react";
-import { animated, config, useSpring } from "react-spring";
+import { animated, config, useSpring } from "@react-spring/web";
 
 export const FadeInPaper = (props: React.PropsWithChildren) => {
     const fadeIn = useSpring({

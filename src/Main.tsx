@@ -1,10 +1,11 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { useSpringRef, useSpring, config, useChain, useTransition, animated } from 'react-spring';
+import React, { useContext, useEffect, useState } from 'react';
+import { useSpringRef, useSpring, config, useChain, useTransition, animated } from '@react-spring/web';
 import CreateLobbyDialog from './CreateLobbyDialog';
 import Dialog from './Dialog';
 import styles from './Main.module.css';
-import { socket } from './WebSocket';
+import { socket, SocketStateContext } from './WebSocket';
+import { useGameState } from './GameService';
 
 const AnimatedTypography = animated(Typography);
 
@@ -19,17 +20,12 @@ function App() {
 		socket.emit("joinLobby", lobbyCode, nickname);
 	};
 
-	const createLobby = async () => {
-		setShowCreateDialog(true);
-	};
-
-
 	const stopClick = (event: React.MouseEvent<any>) => {
 		event.stopPropagation();
 		event.preventDefault();
 	};
 
-	const createButton = <Button className={styles.transformButton} variant="outlined" color="success" size="large" onClick={() => createLobby()}>
+	const createButton = <Button className={styles.transformButton} variant="outlined" color="success" size="large" onClick={() => setShowCreateDialog(true)}>
 		CREATE LOBBY
 	</Button>;
 
@@ -133,11 +129,11 @@ function App() {
 							setNickname(event.target.value);
 						}}
 					/>
-					<Button 
+					<Button
 						focusRipple={true}
-						variant="outlined" 
-						type="submit" 
-						disabled={lobbyError || lobbyCode.length === 0 || nicknameError || nickname.length === 0} 
+						variant="outlined"
+						type="submit"
+						disabled={lobbyError || lobbyCode.length === 0 || nicknameError || nickname.length === 0}
 						onClick={handleLobbyJoinClick}>JOIN</Button>
 				</Stack>
 			</Dialog>

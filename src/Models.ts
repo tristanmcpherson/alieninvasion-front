@@ -26,5 +26,6 @@ export interface IPlayer {
 export interface ICharacter {
     _id: string,
     name: string,
+    title: string,
     description: string
 }

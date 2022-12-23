@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { ICardProps } from './Card';
 import ChooseName from './ChooseName';
-import { useGameState } from './GameService';
+import { useGameState, InitialGameState } from './GameService';
 import { socket } from './WebSocket';
 import { useNavigate } from 'react-router-dom';
 import Dialog from './Dialog';
@@ -11,6 +11,7 @@ const CreateLobbyDialog = (props: ICardProps) => {
 	const [, setGameState] = useGameState();
 
 	const createLobby = (nickname: string) => {
+		setGameState({...InitialGameState});
 		socket.emit("createLobby", nickname);
 	}
 
