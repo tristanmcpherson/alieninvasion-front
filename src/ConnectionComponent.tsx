@@ -5,11 +5,11 @@ import { socket, SocketStateContext } from "./WebSocket";
 export const ConnectionComponent = ({ children }: React.PropsWithChildren) => {
     const [gameState, setGameState] = useGameState();
 	const context = useContext(SocketStateContext);
-	const [attemptReconnect, setAttemptReconnect] = useState<boolean>(false);
+	const [evaluateForReconnect, setEvaluateForReconnect] = useState<boolean>(false);
 
 	useEffect(() => {
 		socket.on("connect", () => {
-			setAttemptReconnect(true);
+			setEvaluateForReconnect(true);
 		});
 
         socket.on("lobbyLeft", playerId => {
@@ -24,20 +24,19 @@ export const ConnectionComponent = ({ children }: React.PropsWithChildren) => {
 	}, [setGameState]);
 
 	useEffect(() => {
-		if (attemptReconnect) {
-			console.log("attempting reconnect");
+		if (evaluateForReconnect) {
 			if (gameState.lobby) {
 				console.log("have lobby, firing reconnect with old socket: " + context.state.socketId)
                 console.log("new socket: " + socket.id);
 				socket.emit("rejoinLobby", gameState.lobby._id, context.state.socketId);
 			}
-			setAttemptReconnect(false);
+			setEvaluateForReconnect(false);
 		}
 
         if (context.state.socketId !== socket.id) {
             context.dispatch({ type: "set", socketId: socket.id });
         }
-	}, [attemptReconnect, context, gameState.lobby]);
+	}, [evaluateForReconnect, context, gameState.lobby]);
 
     return <>{children}</>;
 }

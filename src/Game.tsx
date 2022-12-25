@@ -13,6 +13,8 @@ import { useGameState } from './GameService';
 import { animated, config, useSpring, useTrail, UseTrailProps } from '@react-spring/web';
 import { Loader } from './Loader';
 import "./Controls.css";
+import { PlayerCard } from './PlayerCard';
+import AppBar from '@mui/material/AppBar';
 
 function useQuery() {
 	const { search } = useLocation();
@@ -220,8 +222,11 @@ const Game = () => {
 		<LinearProgress variant="determinate" value={progress} color={progress === 100 ? "success" : undefined} />
 	</Container>;
 
+	const currentPlayer = gameState.lobby.players.find(p => p._id === socket.id);
 	return (<>
 		<Box className="controls" sx={{ pb: 7 }}>
+			<AppBar/>
+			{currentPlayer && <PlayerCard player={currentPlayer} onCharacterSelect={() => {}} />}
 			{/* <span>Can use audio: {new AudioContext().state === "suspended" ? "no" : "yes"}</span> */}
 			{/* <Box><Button>Start Round</Button></Box>
             

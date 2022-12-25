@@ -67,7 +67,7 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
     useChain([fadeInApi, fadeInNameApi, fadeInTitleApi]);
 
     return <Box width={300} m={1}>
-        <div className={[styles.border_animate, styles.selecting].join(" ")}>
+        <div className={[styles.border_animate, character ? styles.selected : styles.selecting].join(" ")}>
             <Box
                 sx={{
                     bgcolor: 'background.paper',

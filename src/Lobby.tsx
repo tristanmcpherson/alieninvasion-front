@@ -1,28 +1,25 @@
 import { Box, Divider, Stack, Button } from '@mui/material';
 import React, { useEffect, useState } from "react";
-import { animated, useTransition, useSpring, useSpringRef, useChain } from '@react-spring/web';
+import { animated, useTransition } from '@react-spring/web';
 import { Card } from "./Card";
 import { useGameState } from './GameService';
 import { Loader } from "./Loader";
-import { ICharacter, IPlayer } from "./Models";
+import { IPlayer } from "./Models";
 import { socket } from "./WebSocket";
 import { useNavigate } from 'react-router-dom';
 import { CharacterSelect } from './CharacterSelect';
-import { Characters, Icons } from './images/Images';
-import BlurOnIcon from '@mui/icons-material/BlurOn';
+import { Icons } from './images/Images';
 
-import { useTimeout } from './useTimeout';
 import { PlayerCard } from './PlayerCard';
 import AnimatedText from './AnimatedText';
 
 
 const Lobby = () => {
 	const navigate = useNavigate();
-
 	// useful to have entirety of gamestate?
 	// maybe just use parts, then update isn't as bad?
+	// TODO: refactor gamestate into usable parts
 	const [gameState, setGameState] = useGameState();
-	const [currentCharacter, setCurrentCharacter] = useState<string | null>(gameState.currentPlayer?.character ?? null);
 	const [showCharacterSelection, setShowCharacterSelection] = useState(false);
 	
 	// useTimeout(() => {
@@ -75,12 +72,23 @@ const Lobby = () => {
 			})
 		});
 
+		socket.on("startGame", (tasks) => {
+			setGameState(gameState => {
+				return {
+					...gameState,
+					tasks
+				};
+			})
+
+			navigate({ pathname: "/game" });
+		})
+
 		return () => {
 			socket.off("lobbyJoined");
 			socket.off("lobbyLeft");
 			socket.off("characterSelected");
 		}
-	}, [setGameState]);
+	}, [navigate, setGameState]);
 
 	// add polling for lobby info
 	useEffect(() => {
@@ -111,7 +119,10 @@ const Lobby = () => {
 		return <><Loader open={true} /></>;
 	}
 
-	const AnimatedPlayerCard = animated(PlayerCard);
+	const startGame = () => {
+		socket.emit("startGame");
+	};
+
 	return <>
 		<CharacterSelect show={showCharacterSelection} onClose={(characterId) => {
 			setShowCharacterSelection(false)
@@ -132,7 +143,8 @@ const Lobby = () => {
 						</animated.div>
 					))}
 				</Stack>
-				<Button variant='outlined'>Start Game</Button>
+				<Divider sx={{ width: '100%' }}></Divider>
+				<Button variant='outlined' onClick={() => startGame()}>Start Game</Button>
 			</Stack>
 		</Card>
 	</>;

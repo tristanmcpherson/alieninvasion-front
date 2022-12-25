@@ -1,11 +1,10 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSpringRef, useSpring, config, useChain, useTransition, animated } from '@react-spring/web';
 import CreateLobbyDialog from './CreateLobbyDialog';
 import Dialog from './Dialog';
 import styles from './Main.module.css';
-import { socket, SocketStateContext } from './WebSocket';
-import { useGameState } from './GameService';
+import { socket } from './WebSocket';
 
 const AnimatedTypography = animated(Typography);
 

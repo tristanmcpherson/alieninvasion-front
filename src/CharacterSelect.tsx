@@ -83,6 +83,7 @@ export const CharacterSelect = ({ show, onClose }: { show: boolean, onClose: (ch
 					</Collapse>
 				</Stack>
 			</Stack>
+			<Divider></Divider>
 		</Box>
 		<DialogActions>
 			<Button onClick={() => onClose(characterId)}>CHOOSE CHARACTER</Button>

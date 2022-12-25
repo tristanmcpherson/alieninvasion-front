@@ -10,6 +10,7 @@ export interface SharedEvents {
 
 export interface ClientEvents extends SharedEvents {
 	joinLobby: (lobbyId: string, name: string) => void;
+	startGame: () => void;
 	rejoinLobby: (lastPlayerId: string, lobbyId: string) => void;
 	createLobby: (name: String) => void;
 	characterSelected: (characterId: string) => void;
