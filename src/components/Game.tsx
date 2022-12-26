@@ -7,9 +7,9 @@ import { Container, ThemeProvider, createTheme, BottomNavigation, BottomNavigati
 import HomeIcon from '@mui/icons-material/Home';
 import BallotIcon from '@mui/icons-material/Ballot';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { ITask } from './Models';
+import { ITask } from '../core/Models';
 import { socket } from './WebSocket';
-import { useGameState } from './GameService';
+import { useGameState } from '../core/GameService';
 import { animated, config, useSpring, useTrail, UseTrailProps } from '@react-spring/web';
 import { Loader } from './Loader';
 import "./Controls.css";

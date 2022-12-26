@@ -2,7 +2,7 @@ import { Box, Stack } from "@mui/material";
 import { useSpringRef, useSpring, useChain, useTransition, animated, config } from '@react-spring/web';
 import { useState, useEffect } from "react";
 import { Characters, Icons } from "./images/Images";
-import { IPlayer, ICharacter } from "./Models";
+import { IPlayer, ICharacter } from "../core/Models";
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import styles from "./Lobby.module.css";
 

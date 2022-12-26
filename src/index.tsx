@@ -7,19 +7,20 @@ import {
 	useLocation,
 	useOutlet,
 } from "react-router-dom";
-import App from './Main';
+import App from './components/Main';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import { GameStateProvider } from './GameService';
-import { Loader } from './Loader';
+import { GameStateProvider } from './core/GameService';
+import { Loader } from './components/Loader';
 import CssBaseline from '@mui/material/CssBaseline';
 import './index.css';
 import { animated, useTransition } from '@react-spring/web';
-import { SocketStateProvider } from './WebSocket';
-import { ConnectionComponent } from './ConnectionComponent';
-const Game = React.lazy(() => import("./Game"));
-const Lobby = React.lazy(() => import("./Lobby"));
+import { SocketStateProvider } from './core/WebSocket';
+import { ConnectionComponent } from './components/ConnectionComponent';
+
+const Game = React.lazy(() => import("./components/Game"));
+const Lobby = React.lazy(() => import("./components/Lobby"));
 
 const withLoader = (Component: React.ComponentType) =>
 	<React.Suspense fallback={<Loader open={true} />}>

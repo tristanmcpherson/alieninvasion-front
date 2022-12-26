@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ICharacter } from "./Models";
+import { ICharacter } from "../core/Models";
 import { Box, Button, Collapse, Dialog, DialogActions, Divider, Paper, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'
 import { Characters, Icons } from './images/Images';

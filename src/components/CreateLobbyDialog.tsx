@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { ICardProps } from './Card';
 import ChooseName from './ChooseName';
-import { useGameState, InitialGameState } from './GameService';
+import { useGameState, InitialGameState } from '../core/GameService';
 import { socket } from './WebSocket';
 import { useNavigate } from 'react-router-dom';
 import Dialog from './Dialog';

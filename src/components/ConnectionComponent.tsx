@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useGameState, InitialGameState } from './GameService';
+import { useGameState, InitialGameState } from '../core/GameService';
 import { socket, SocketStateContext } from "./WebSocket";
 
 export const ConnectionComponent = ({ children }: React.PropsWithChildren) => {
