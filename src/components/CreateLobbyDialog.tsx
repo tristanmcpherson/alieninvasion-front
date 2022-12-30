@@ -1,17 +1,17 @@
 import { useEffect } from 'react';
 import { ICardProps } from './Card';
 import ChooseName from './ChooseName';
-import { useGameState, InitialGameState } from '../core/GameService';
-import { socket } from './WebSocket';
+import { socket } from '../core/WebSocket';
 import { useNavigate } from 'react-router-dom';
 import Dialog from './Dialog';
+import { setLobby } from '../slices/GameSlice';
+import { useAppDispatch } from '../hooks';
 
 const CreateLobbyDialog = (props: ICardProps) => {
+	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const [, setGameState] = useGameState();
 
 	const createLobby = (nickname: string) => {
-		setGameState({...InitialGameState});
 		socket.emit("createLobby", nickname);
 	}
 
@@ -24,11 +24,7 @@ const CreateLobbyDialog = (props: ICardProps) => {
 				return;
 			}
 
-			setGameState({
-				tasks: [],
-				lobby: lobby,
-				currentPlayer: player
-			});
+			dispatch(setLobby(lobby));
 
 			navigate({ pathname: "lobby" })
 		});
@@ -36,7 +32,7 @@ const CreateLobbyDialog = (props: ICardProps) => {
 		return () => {
 			socket.off("lobbyJoined");
 		}
-	}, [setGameState, navigate])
+	}, [navigate, dispatch])
 
 	return <Dialog {...props}title={"Create Lobby"}>
 		<ChooseName buttonText={"CREATE LOBBY"} handleNicknameChanged={createLobby}></ChooseName>

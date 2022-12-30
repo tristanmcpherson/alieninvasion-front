@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
 	createBrowserRouter,
@@ -11,16 +11,13 @@ import App from './components/Main';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import { GameStateProvider } from './core/GameService';
 import { Loader } from './components/Loader';
 import CssBaseline from '@mui/material/CssBaseline';
 import './index.css';
 import { animated, useTransition } from '@react-spring/web';
-import { SocketStateProvider } from './core/WebSocket';
 import { ConnectionComponent } from './components/ConnectionComponent';
-
-const Game = React.lazy(() => import("./components/Game"));
-const Lobby = React.lazy(() => import("./components/Lobby"));
+import { Provider } from 'react-redux';
+import { store } from './store';
 
 const withLoader = (Component: React.ComponentType) =>
 	<React.Suspense fallback={<Loader open={true} />}>
@@ -30,19 +27,15 @@ const withLoader = (Component: React.ComponentType) =>
 const routes: RouteObject[] = [
 	{
 		path: "/",
-		element: <App></App>,
-		//nodeRef: createRef<HTMLDivElement>()
+		element: <App></App>
 	},
 	{
 		path: "/game",
-		// loader instead of ...
-		element: withLoader(Game),
-		//nodeRef: createRef<HTMLDivElement>()
+		element: withLoader(React.lazy(() => import("./components/Game")))
 	},
 	{
 		path: "/lobby",
-		element: withLoader(Lobby),
-		//nodeRef: createRef<HTMLDivElement>()
+		element: withLoader(React.lazy(() => import("./components/Lobby")))
 	}
 ];
 
@@ -52,34 +45,34 @@ const theme = createTheme({
 	},
 	components: {
 		MuiCssBaseline: {
-		  styleOverrides: {
-			body: {
-			  scrollbarColor: "#6b6b6b #2b2b2b",
-			  "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-				backgroundColor: "#2b2b2b",
-			  },
-			  "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
-				borderRadius: 8,
-				backgroundColor: "#6b6b6b",
-				minHeight: 24,
-				border: "3px solid #2b2b2b",
-			  },
-			  "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus": {
-				backgroundColor: "#959595",
-			  },
-			  "&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active": {
-				backgroundColor: "#959595",
-			  },
-			  "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
-				backgroundColor: "#959595",
-			  },
-			  "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
-				backgroundColor: "#2b2b2b",
-			  },
+			styleOverrides: {
+				body: {
+					scrollbarColor: "#6b6b6b #2b2b2b",
+					"&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+						backgroundColor: "#2b2b2b",
+					},
+					"&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+						borderRadius: 8,
+						backgroundColor: "#6b6b6b",
+						minHeight: 24,
+						border: "3px solid #2b2b2b",
+					},
+					"&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus": {
+						backgroundColor: "#959595",
+					},
+					"&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active": {
+						backgroundColor: "#959595",
+					},
+					"&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
+						backgroundColor: "#959595",
+					},
+					"&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
+						backgroundColor: "#2b2b2b",
+					},
+				},
 			},
-		  },
 		},
-	  },
+	},
 });
 
 const Index = () => {
@@ -98,24 +91,22 @@ const Index = () => {
 	// }
 
 	return (
-		<ThemeProvider theme={theme}>
-			<SocketStateProvider>
-				<GameStateProvider>
-					<ConnectionComponent>
-						<CssBaseline />
-						<div className="App">
-							{transitions((props, item) => (
-								<animated.div key={item.pathname} style={props}>
-									<div className="page">
-										{outlet}
-									</div>
-								</animated.div>
-							))}
-						</div>
-					</ConnectionComponent>
-				</GameStateProvider>
-			</SocketStateProvider>
-		</ThemeProvider>
+		<Provider store={store}>
+			<ThemeProvider theme={theme}>
+				<ConnectionComponent>
+					<CssBaseline />
+					<div className="App">
+						{transitions((props, item) => (
+							<animated.div key={item.pathname} style={props}>
+								<div className="page">
+									{outlet}
+								</div>
+							</animated.div>
+						))}
+					</div>
+				</ConnectionComponent>
+			</ThemeProvider>
+		</Provider>
 	);
 };
 

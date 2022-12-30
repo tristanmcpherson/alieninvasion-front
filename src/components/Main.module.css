@@ -1,11 +1,11 @@
 @font-face {
 	font-family: 'Under Authority';
-	src: url("./UnderAuthority.ttf");
+	src: url("../fonts/UnderAuthority.ttf");
 }
 
 @font-face {
 	font-family: 'Bebas';
-	src: url("./BebasNeue-Regular.woff2");
+	src: url("../fonts/BebasNeue-Regular.woff2");
 }
 
 .transformButton {

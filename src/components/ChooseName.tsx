@@ -22,6 +22,7 @@ const ChooseName = (props: IChooseNameProps) => {
 
 	return <Stack direction={"column"} spacing={2.5} pt={4} pl={4} pr={4} pb={3}>
 		<TextField
+			autoFocus
 			label="Nickname"
 			error={error}
 			helperText={message}
@@ -34,7 +35,7 @@ const ChooseName = (props: IChooseNameProps) => {
 					console.log("enter pressed");
 					if (!error && nickname.length !== 0) { props.handleNicknameChanged?.(nickname) }
 				}
-			}}></TextField>
+			}} />
 		<Button focusRipple={true} variant="outlined" disabled={error || nickname.length === 0} onClick={() => props.handleNicknameChanged?.(nickname)}>
 			{props.buttonText}
 		</Button>

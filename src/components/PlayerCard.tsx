@@ -1,8 +1,8 @@
 import { Box, Stack } from "@mui/material";
 import { useSpringRef, useSpring, useChain, useTransition, animated, config } from '@react-spring/web';
 import { useState, useEffect } from "react";
-import { Characters, Icons } from "./images/Images";
-import { IPlayer, ICharacter } from "../core/Models";
+import { Characters, Icons } from "../images/Images";
+import { IPlayer } from "../core/Models";
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import styles from "./Lobby.module.css";
 
@@ -10,7 +10,6 @@ interface IPlayerCardProps {
     player: IPlayer,
     onCharacterSelect: () => void;
 }
-
 
 export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) => {
     const character = Characters.find(c => c._id === props.player.character);
@@ -67,6 +66,7 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
     useChain([fadeInApi, fadeInNameApi, fadeInTitleApi]);
 
     return <Box width={300} m={1}>
+        {/* TODO: Animate border style change */}
         <div className={[styles.border_animate, character ? styles.selected : styles.selecting].join(" ")}>
             <Box
                 sx={{
@@ -75,7 +75,7 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
                     borderRadius: 2,
                     p: 2,
                     minWidth: 300,
-                    zIndex: 3
+                    zIndex: (theme) => theme.zIndex.drawer 
                 }}
             >
                 <Stack direction={"row"} justifyContent={"space-between"}>

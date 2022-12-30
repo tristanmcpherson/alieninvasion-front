@@ -4,7 +4,7 @@ import { useSpringRef, useSpring, config, useChain, useTransition, animated } fr
 import CreateLobbyDialog from './CreateLobbyDialog';
 import Dialog from './Dialog';
 import styles from './Main.module.css';
-import { socket } from './WebSocket';
+import { socket } from '../core/WebSocket';
 
 const AnimatedTypography = animated(Typography);
 
@@ -88,7 +88,7 @@ function App() {
 			<Box marginTop={{ xs: 8, md: 24 }}>
 				<Stack margin={{ xs: 4, md: 8 }}>
 					<AnimatedTypography style={logoTransition} fontSize={96} sx={{ fontFamily: 'Under Authority' }} variant="h3">Fartian</AnimatedTypography>
-					<AnimatedTypography style={fadeIn} fontSize={32} sx={{ fontFamily: 'Bebas', letterSpacing: "20px", textIndent: "20px", transform: "scale(1, 1.5)" }} variant="h3">INVASION</AnimatedTypography>
+					<AnimatedTypography style={fadeIn} fontSize={32} sx={{ fontFamily: 'Bebas', letterSpacing: "31px", textIndent: "26px", transform: "scale(1, 1.5)" }} variant="h3">INVASION</AnimatedTypography>
 					<Stack sx={{ margin: { xs: 8, md: 12 } }} direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 4, md: 12 }} display={"flex"} justifyContent={"center"}>
 						{transition((style, button) => (
 							<animated.div style={style}>{button}</animated.div>
@@ -100,6 +100,8 @@ function App() {
 			<Dialog show={showJoinDialog} title='Join Lobby' onClick={() => setShowJoinDialog(false)} >
 				<Stack direction={"column"} spacing={2} padding={4} pb={3} onClick={stopClick}>
 					<TextField
+						focused
+						autoFocus
 						required
 						id="outlined-required"
 						label="Lobby Code"

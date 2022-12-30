@@ -1,6 +1,8 @@
+import { IGameConfig } from "./WebSocket"
+
 export interface ITask {
     id: string,
-    name?: string,
+    name: string,
     description?: string,
     completed?: boolean
 }
@@ -11,16 +13,22 @@ export interface ILobby {
     players: Array<IPlayer>
 }
 
+// gamestate should be nullable instead of lobby, etc being nullable...
 export interface IGameState {
     lobby?: ILobby,
     tasks: Array<ITask>,
-	currentPlayer: IPlayer|null
+    // utilize store instead of socket directly
+	currentPlayerId: string|null,
+    gameConfig: IGameConfig
 }
 
+export const Factions = ["crewmate", "fartian"] as const;
+export type Faction = typeof Factions[number];
 export interface IPlayer {
 	_id: string,
 	name: string,
-	character: string
+	character: string,
+    faction: Faction
 }
 
 export interface ICharacter {

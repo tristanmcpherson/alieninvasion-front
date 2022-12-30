@@ -15,7 +15,7 @@ import MilesOStoolIcon from "./miles_o_stool.png";
 import PhilMadrarsIcon from "./phil_madrars.png";
 import StanKeybottomIcon from "./stan_keybottom.png";
 import TrouserPileIcon from "./trouser_pile.png";
-import { ICharacter } from '../Models';
+import { ICharacter } from '../core/Models';
 
 export const Icons: Map<typeof Characters[number]['_id'], string> = new Map([
 	["angel_soft", AngelSoftIcon],

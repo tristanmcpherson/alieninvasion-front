@@ -1,10 +1,13 @@
-import { useContext, useEffect, useState } from "react";
-import { useGameState, InitialGameState } from '../core/GameService';
-import { socket, SocketStateContext } from "./WebSocket";
+import { useEffect, useState } from "react";
+import { socket } from "../core/WebSocket";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { resetGame, selectLobby, setCurrentPlayer } from "../slices/GameSlice";
 
 export const ConnectionComponent = ({ children }: React.PropsWithChildren) => {
-    const [gameState, setGameState] = useGameState();
-	const context = useContext(SocketStateContext);
+	const socketId = useAppSelector(state => state.gameState.currentPlayerId);
+	const lobby = useAppSelector(selectLobby);
+	const dispatch = useAppDispatch();
+
 	const [evaluateForReconnect, setEvaluateForReconnect] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -13,30 +16,31 @@ export const ConnectionComponent = ({ children }: React.PropsWithChildren) => {
 		});
 
         socket.on("lobbyLeft", playerId => {
-            if (playerId === socket.id) {
-                setGameState({...InitialGameState});
+            if (playerId === socketId) {
+				console.log("Current player purposefully disconnected from lobby")
+                dispatch(resetGame());
             }
         });
 
 		return () => {
 			socket.off("connect");
 		};
-	}, [setGameState]);
+	}, [socketId, dispatch]);
 
 	useEffect(() => {
 		if (evaluateForReconnect) {
-			if (gameState.lobby) {
-				console.log("have lobby, firing reconnect with old socket: " + context.state.socketId)
+			if (lobby && socketId) {
+				console.log("have lobby and old socket id, firing reconnect with old socket: " + socketId)
                 console.log("new socket: " + socket.id);
-				socket.emit("rejoinLobby", gameState.lobby._id, context.state.socketId);
+				socket.emit("rejoinLobby", lobby._id, socketId);
 			}
 			setEvaluateForReconnect(false);
 		}
 
-        if (context.state.socketId !== socket.id) {
-            context.dispatch({ type: "set", socketId: socket.id });
+        if (socketId !== socket.id) {
+            dispatch(setCurrentPlayer(socket.id));
         }
-	}, [evaluateForReconnect, context, gameState.lobby]);
+	}, [dispatch, evaluateForReconnect, socketId, lobby]);
 
     return <>{children}</>;
 }

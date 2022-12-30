@@ -7,14 +7,17 @@ import { Container, ThemeProvider, createTheme, BottomNavigation, BottomNavigati
 import HomeIcon from '@mui/icons-material/Home';
 import BallotIcon from '@mui/icons-material/Ballot';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { ITask } from '../core/Models';
-import { socket } from './WebSocket';
-import { useGameState } from '../core/GameService';
-import { animated, config, useSpring, useTrail, UseTrailProps } from '@react-spring/web';
+import { Factions, ITask } from '../core/Models';
+import { socket } from '../core/WebSocket';
+import { animated, config, useChain, useSpring, useSpringRef, useTrail, UseTrailProps } from '@react-spring/web';
 import { Loader } from './Loader';
-import "./Controls.css";
 import { PlayerCard } from './PlayerCard';
 import AppBar from '@mui/material/AppBar';
+
+import "./Controls.css";
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { completeTask, sabotageTask, selectCurrentPlayer, selectLobby, selectTasks, setPlayerFaction } from '../slices/GameSlice';
+import SplashScreen from './SplashScreen';
 
 function useQuery() {
 	const { search } = useLocation();
@@ -23,19 +26,20 @@ function useQuery() {
 }
 
 const Game = () => {
+	const dispatch = useAppDispatch();
+	const currentPlayer = useAppSelector(selectCurrentPlayer);
+	const lobby = useAppSelector(selectLobby);
+	const tasks = useAppSelector(selectTasks);
+	const [showFaction, setShowFaction] = useState(false);
+
 	const query = useQuery();
 	const [isConnected, setIsConnected] = useState(socket.connected);
 
 	const navigate = useNavigate();
-	const [gameState, setGameState] = useGameState();
-	const tasks = gameState.tasks;
 
-	const setTasks = useCallback((state: (tasks: ITask[]) => ITask[]) => {
-		setGameState(old => {
-			const newTasks = state(old.tasks);
-			return { ...gameState, tasks: newTasks }
-		});
-	}, [gameState, setGameState]);
+	// const setTasks = useCallback((state: (tasks: ITask[]) => ITask[]) => {
+	// 	dispatch(setTasks())
+	// }, [gameState, setGameState]);
 
 	const [showCompleted, setShowCompleted] = useState(false);
 	const [canPlayAudio, setCanPlayAudio] = useState(false);
@@ -50,46 +54,63 @@ const Game = () => {
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
-			if (!gameState.lobby) {
+			if (!lobby) {
 				navigate({ pathname: "/" })
 				return;
 			}
 		}, 1000)
 		return () => clearTimeout(timeout);
-	}, [gameState.lobby, navigate]);
+	}, [lobby, navigate]);
 
 	useEffect(() => {
-		//setCanUseAudio(audioContext.state !== "suspended");
-	}, []);
+		if (currentPlayer?.faction) {
+			// need to investigate showing once per game
+			// store this state in store instead?
+			const timeout = setTimeout(() => {
+				setShowFaction(true);
+			});
+
+			return () => clearTimeout(timeout);
+		}
+	}, [currentPlayer?.faction]);
 
 
-	useEffect(() => {
-		const fetchData = () => {
-			if (gameState.lobby && socket.connected) {
-				fetch(`/api/task/${gameState.lobby._id}/${socket.id}`)
-					.then(response => {
-						if (response.status === 404 || response.status === 400) {
-							navigate({ pathname: "/" });
-						}
-						return response;
-					})
-					.then(response => response.json())
-					.then(data => setTasks(() => data));
-			}
-		};
+	// Testing removing the polling endpoint, shouldn't be necessary with socket.io
+	// TODO: instability should be double checked
 
-		const interval = setInterval(() => {
-			fetchData();
-		}, 10000);
-		return () => clearInterval(interval);
-	}, [gameState.lobby, navigate, setTasks]);
+	// maybe test diffing logic every once in awhile, and true up instead
+
+	// useEffect(() => {
+	// 	const fetchData = () => {
+	// 		if (gameState.lobby && socket.connected) {
+	// 			fetch(`/api/task/${gameState.lobby._id}/${socket.id}`)
+	// 				.then(response => {
+	// 					if (response.status === 404 || response.status === 400) {
+	// 						navigate({ pathname: "/" });
+	// 					}
+	// 					return response;
+	// 				})
+	// 				.then(response => response.json())
+	// 				.then(data => setTasks(() => data));
+	// 		}
+	// 	};
+
+	// 	const interval = setInterval(() => {
+	// 		fetchData();
+	// 	}, 10000);
+	// 	return () => clearInterval(interval);
+	// }, [gameState.lobby, navigate, setTasks]);
 
 	useEffect(() => {
 		socket.on("connect", () => setIsConnected(true));
 
 		socket.on("updateTaskStatus", (task) => {
 			console.log(task.id + " : " + task.completed);
-			setTasks(tasks => tasks.map(t => t.id === task.id ? task : t));
+			if (task.completed) {
+				dispatch(completeTask(task.id));
+			} else {
+				dispatch(sabotageTask(task.id));
+			}
 		});
 
 		socket.io.on("reconnect_failed", () => {
@@ -117,8 +138,7 @@ const Game = () => {
 			socket.off("assemble");
 			socket.off("updateTaskStatus");
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [navigate, dispatch]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -148,14 +168,13 @@ const Game = () => {
 	const handleClickSendMessage = useCallback(() => socket.emit("assemble"), []);
 
 	const setStatus = (id: string, completed: boolean) => {
-		const updateMessage: ITask = {
+		const updateMessage = {
 			id,
 			completed
 		};
 		socket.emit("updateTaskStatus", updateMessage);
 	};
 
-	const progress = (tasks && tasks.length !== 0) ? (tasks.filter(t => t.completed).length / tasks.length) * 100 : 0;
 
 	const renderTask = (task: ITask) => {
 		return <div className="task" key={task.id}>
@@ -185,10 +204,6 @@ const Game = () => {
 
 	};
 
-	//const transitions = useTransition(tasks, );
-
-
-
 	const fadeIn = useSpring({
 		from: { opacity: 0 },
 		to: { opacity: 1 },
@@ -197,20 +212,22 @@ const Game = () => {
 		config: config.molasses,
 	});
 
-	const fadeConfig: UseTrailProps = {
+	const trailFadeConfig: UseTrailProps = {
 		from: { opacity: 0 },
 		opacity: 1,
 		delay: 200,
 		config: config.molasses
 	};
 
-	const trails = useTrail(tasks.length, fadeConfig);
+	const trails = useTrail(tasks.length, trailFadeConfig);
 
+	//useChain([splashScreenApi, gameAnimationApi]);
 
-	if (!gameState.lobby) {
+	if (!lobby) {
 		return <Loader open={true}></Loader>;
 	}
 
+	const progress = (tasks && tasks.length !== 0) ? (tasks.filter(t => t.completed).length / tasks.length) * 100 : 0;
 	const taskContainer = <Container>
 		<Stack direction="row" sx={{ marginBottom: "5px" }}>
 			<div className="progress">
@@ -222,11 +239,10 @@ const Game = () => {
 		<LinearProgress variant="determinate" value={progress} color={progress === 100 ? "success" : undefined} />
 	</Container>;
 
-	const currentPlayer = gameState.lobby.players.find(p => p._id === socket.id);
 	return (<>
+		<SplashScreen faction={currentPlayer?.faction} show={showFaction} onClose={() => setShowFaction(false)}></SplashScreen>
 		<Box className="controls" sx={{ pb: 7 }}>
-			<AppBar/>
-			{currentPlayer && <PlayerCard player={currentPlayer} onCharacterSelect={() => {}} />}
+			<AppBar />
 			{/* <span>Can use audio: {new AudioContext().state === "suspended" ? "no" : "yes"}</span> */}
 			{/* <Box><Button>Start Round</Button></Box>
             
@@ -236,6 +252,7 @@ const Game = () => {
 			<animated.div style={{ display: "flex", flex: 1, width: "100%", ...fadeIn }}>
 				{taskContainer}
 			</animated.div>
+			{currentPlayer && <PlayerCard player={currentPlayer} onCharacterSelect={() => { }} />}
 			<div className="buttons">
 				<ThemeProvider theme={redTheme}>
 					<Button variant="contained" onClick={handleClickSendMessage}>Assemble</Button>
