@@ -34,6 +34,10 @@ const Lobby = () => {
 	// }, currentCharacter ? null : 2000);
 
 	useEffect(() => {
+		setShowCharacterSelection(false);
+	}, [currentPlayer?.character]);
+
+	useEffect(() => {
 		// ... preload images ... - ps i hate this
 		Array.from(Icons.values()).map(image => new Image().src = image)
 	}, []);

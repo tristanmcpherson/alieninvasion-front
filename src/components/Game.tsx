@@ -18,6 +18,7 @@ import "./Controls.css";
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { completeTask, sabotageTask, selectCurrentPlayer, selectLobby, selectTasks, setPlayerFaction } from '../slices/GameSlice';
 import SplashScreen from './SplashScreen';
+import Countdown from './Countdown';
 
 function useQuery() {
 	const { search } = useLocation();
@@ -73,33 +74,6 @@ const Game = () => {
 			return () => clearTimeout(timeout);
 		}
 	}, [currentPlayer?.faction]);
-
-
-	// Testing removing the polling endpoint, shouldn't be necessary with socket.io
-	// TODO: instability should be double checked
-
-	// maybe test diffing logic every once in awhile, and true up instead
-
-	// useEffect(() => {
-	// 	const fetchData = () => {
-	// 		if (gameState.lobby && socket.connected) {
-	// 			fetch(`/api/task/${gameState.lobby._id}/${socket.id}`)
-	// 				.then(response => {
-	// 					if (response.status === 404 || response.status === 400) {
-	// 						navigate({ pathname: "/" });
-	// 					}
-	// 					return response;
-	// 				})
-	// 				.then(response => response.json())
-	// 				.then(data => setTasks(() => data));
-	// 		}
-	// 	};
-
-	// 	const interval = setInterval(() => {
-	// 		fetchData();
-	// 	}, 10000);
-	// 	return () => clearInterval(interval);
-	// }, [gameState.lobby, navigate, setTasks]);
 
 	useEffect(() => {
 		socket.on("connect", () => setIsConnected(true));
@@ -240,6 +214,7 @@ const Game = () => {
 	</Container>;
 
 	return (<>
+		{/* <Countdown startNumber={3} onFadeOutComplete={() => {}}></Countdown> */}
 		<SplashScreen faction={currentPlayer?.faction} show={showFaction} onClose={() => setShowFaction(false)}></SplashScreen>
 		<Box className="controls" sx={{ pb: 7 }}>
 			<AppBar />

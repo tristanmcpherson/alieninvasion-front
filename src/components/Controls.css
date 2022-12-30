@@ -36,7 +36,6 @@
 }
 
 .buttons {
-    width: 100%;
     display: flex;
     justify-content: center;
 
@@ -44,7 +43,7 @@
 
 .buttons button {
     flex: 1;
-    width: 100px;
+    width: 150px;
     margin: 10px;
 }
 
