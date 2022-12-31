@@ -19,7 +19,8 @@ export interface IGameState {
     tasks: Array<ITask>,
     // utilize store instead of socket directly
 	currentPlayerId: string|null,
-    gameConfig: IGameConfig
+    gameConfig: IGameConfig,
+    shownFaction: boolean
 }
 
 export const Factions = ["crewmate", "fartian"] as const;

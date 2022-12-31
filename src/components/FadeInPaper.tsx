@@ -19,7 +19,7 @@ export const FadeInPaper = (props: React.PropsWithChildren) => {
                 boxShadow: 1,
                 borderRadius: 2,
                 p: 2,
-                minWidth: 340,
+                minWidth: 340
             }}
 			onClick={(ev) => {
 				ev.stopPropagation();

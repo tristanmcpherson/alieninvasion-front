@@ -51,7 +51,7 @@ export const CharacterSelect: React.FC<{ show: boolean, onClose?: () => void, ap
 
 					</Stack>
 					<Collapse in={!!currentCharacter}>
-						<Stack flex={1} direction={{ xs: 'column', md: 'row' }} spacing={2}>
+						<Stack alignItems={"center"} flex={1} direction={{ xs: 'column', md: 'row' }} spacing={2}>
 							<Box sx={{ width: {xs: 200, md: 280}, height: {xs: 200, md: 280}}}>
 							<img height="100%" className={styles.selectedCharacter} src={characterId ? Icons.get(characterId) : select} alt={characterId ?? "Please select"}></img>
 							</Box>

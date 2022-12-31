@@ -35,7 +35,7 @@ const SplashScreen: React.FC<{ faction?: Faction, show?: boolean, onClose?: () =
         if (show) {
             setShowBackdrop(true);
         }
-    }, [show])
+    }, [show]);
 
     const onRest = () => {
         if (!show) {

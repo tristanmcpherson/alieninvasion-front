@@ -216,7 +216,7 @@ const Game = () => {
 	return (<>
 		{/* <Countdown startNumber={3} onFadeOutComplete={() => {}}></Countdown> */}
 		<SplashScreen faction={currentPlayer?.faction} show={showFaction} onClose={() => setShowFaction(false)}></SplashScreen>
-		<Box className="controls" sx={{ pb: 7 }}>
+		<Stack className="controls" sx={{ pb: 7 }} spacing={3} pl={{ lg: 15 }} pr={{ lg: 15 }}>
 			<AppBar />
 			{/* <span>Can use audio: {new AudioContext().state === "suspended" ? "no" : "yes"}</span> */}
 			{/* <Box><Button>Start Round</Button></Box>
@@ -234,15 +234,15 @@ const Game = () => {
 				</ThemeProvider>
 				<Button variant="contained" onClick={() => setShowCompleted(s => !s)}>Show Status</Button>
 			</div>
-			<div className="tasks">
+			<Box className="tasks">
 				{trails.map(({ opacity }, index) =>
 					<animated.div key={tasks[index].id} style={{ opacity }}>
 						{renderTask(tasks[index])}
 					</animated.div>
 				)}
 
-			</div>
-		</Box>
+			</Box>
+		</Stack>
 		<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
 			<BottomNavigation onChange={(_event, _newValue) => { navigate("/") }}>
 				<BottomNavigationAction label="Home" icon={<HomeIcon />} />

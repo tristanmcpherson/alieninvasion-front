@@ -3,8 +3,10 @@ import { useSpringRef, useSpring, useChain, useTransition, animated, config } fr
 import { useState, useEffect } from "react";
 import { Characters, Icons } from "../images/Images";
 import { IPlayer } from "../core/Models";
-import BlurOnIcon from '@mui/icons-material/BlurOn';
 import styles from "./Lobby.module.css";
+import { useAppSelector } from "../hooks";
+import { selectCurrentPlayer } from "../slices/GameSlice";
+import crewmate from "../images/crewmate.png";
 
 interface IPlayerCardProps {
     player: IPlayer,
@@ -12,24 +14,25 @@ interface IPlayerCardProps {
 }
 
 export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) => {
+    const currentPlayer = useAppSelector(selectCurrentPlayer);
+    const isCurrentPlayer = props.player._id === currentPlayer?._id;
     const character = Characters.find(c => c._id === props.player.character);
-    const icon = Icons.get(props.player.character);
+    const icon = Icons.get(props.player.character) ?? crewmate;
 
-    const [characterName, setCharacterName] = useState<string | undefined>("Selecting...");
+    const defaultValue = isCurrentPlayer ? "Click to select..." : "Selecting...";
+    const [characterName, setCharacterName] = useState<string | undefined>(defaultValue);
     const [characterTitle, setCharacterTitle] = useState<string | undefined>(character?.title);
 
     useEffect(() => {
         if (characterName !== character?.name) {
-            setCharacterName(character?.name ?? "Selecting...");
+            setCharacterName(character?.name ?? defaultValue);
         }
         if (characterTitle !== character?.title) {
             setCharacterTitle(character?.title);
         }
     }, [character, characterName, characterTitle]);
 
-    const image = icon
-        ? <img alt="Selected character" onClick={props.onCharacterSelect} src={icon} width={80} height={80}></img>
-        : <BlurOnIcon sx={{ fontSize: "80px" }} onClick={props.onCharacterSelect} />;
+
 
     console.log("rerendering player card")
 
@@ -42,6 +45,16 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
     });
 
     const fadeInNameApi = useSpringRef();
+    const fadeInImage = useTransition([icon], {
+        ref: fadeInNameApi,
+        from: { opacity: 0 },
+        to: { opacity: 1 },
+        enter: { opacity: 1 },
+        leave: { opacity: 0 },
+        config: { duration: 1000 },
+        exitBeforeEnter: true
+    });
+
     const fadeInName = useTransition([characterName], {
         ref: fadeInNameApi,
         from: { opacity: 0 },
@@ -75,7 +88,7 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
                     borderRadius: 2,
                     p: 2,
                     minWidth: 300,
-                    zIndex: (theme) => theme.zIndex.drawer 
+                    zIndex: (theme) => theme.zIndex.drawer
                 }}
             >
                 <Stack direction={"row"} justifyContent={"space-between"}>
@@ -100,7 +113,9 @@ export const PlayerCard: React.FC<IPlayerCardProps> = (props: IPlayerCardProps) 
                             )}
                         </Box>
                     </Box>
-                    {image}
+                    {fadeInImage((style, icon) => 
+                        <animated.img alt="Selected character" style={style} onClick={props.onCharacterSelect} src={icon} width={80} height={80}></animated.img>
+                    )}
                 </Stack>
             </Box>
         </div>

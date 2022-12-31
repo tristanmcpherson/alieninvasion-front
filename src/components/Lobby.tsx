@@ -110,6 +110,7 @@ const Lobby = () => {
 			setShowCharacterSelection(false)
 		}} />
 		<Card>
+			
 			<Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
 				<Stack direction="column" justifyContent={'center'} alignItems={'center'}>
 					<Box sx={{ color: 'text.secondary' }}>Lobby code</Box>
@@ -121,7 +122,7 @@ const Lobby = () => {
 				</Stack>
 				{/* <Box sx={{ color: 'text.primary', fontSize: 36 }}>{gameState.lobby!._id}</Box> */}
 				<Divider sx={{ width: '100%' }}></Divider>
-				<Stack direction={"column"}>
+				<Stack maxHeight={"50vh"} sx={{ overflowY: "auto" }} direction={"column"}>
 					{transitions((style, item) => (
 						<animated.div style={style} key={item._id}>
 							<PlayerCard key={item._id} player={item} onCharacterSelect={() => setShowCharacterSelection(true)}></PlayerCard>

@@ -25,9 +25,9 @@ const GroupedButtons: React.FC<{
 
     return (
         <ButtonGroup size="small" aria-label="small outlined button group">
-            <Button onClick={increment}>+</Button>
-            {displayCounter && <Button disabled>{value}</Button>}
             {displayCounter && <Button disabled={disableDecrement} onClick={decrement}>-</Button>}
+            {displayCounter && <Button disabled>{value}</Button>}
+            <Button onClick={increment}>+</Button>
         </ButtonGroup>
     );
 }

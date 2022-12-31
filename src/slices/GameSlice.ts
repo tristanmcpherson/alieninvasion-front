@@ -4,7 +4,13 @@ import { RootState } from "../store";
 
 export const gameStateSlice = createSlice({
     name: 'gameState',
-    initialState: { currentPlayerId: null, tasks: [], gameConfig: { numberOfFartians: 1 } } as IGameState,
+    // separate gamestate from gameconfig and ui config
+    initialState: {
+        currentPlayerId: null, 
+        tasks: [], 
+        gameConfig: { numberOfFartians: 1 }, 
+        shownFaction: false 
+    } as IGameState,
     reducers: {
         resetGame: (state) => {
             state.lobby = undefined;
@@ -71,6 +77,9 @@ export const gameStateSlice = createSlice({
             if (task) {
                 task.completed = false;
             }
+        },
+        setShownFaction: (state) => {
+            state.shownFaction = true
         }
     }
 });
@@ -80,6 +89,7 @@ export const { resetGame, createLobby, setLobby, setFartianCount, setCurrentPlay
 export const selectCurrentPlayer = (state: RootState) => state.gameState.lobby?.players.find(player => player._id === state.gameState.currentPlayerId);
 export const selectLobby = (state: RootState) => state.gameState.lobby;
 export const selectFartianCount = (state: RootState) => state.gameState.gameConfig.numberOfFartians;
-export const selectTasks = (State: RootState) => State.gameState.tasks;
+export const selectTasks = (state: RootState) => state.gameState.tasks;
+export const selectShownFaction = (state: RootState) => state.gameState.shownFaction
 
 export default gameStateSlice.reducer;

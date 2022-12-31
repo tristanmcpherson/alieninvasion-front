@@ -15,7 +15,7 @@
 
 .header {
 	text-align: center;
-	min-height: 100vh;
+	height: 100vh;
 	padding-bottom: 400px;
 	display: flex;
 	flex-direction: column;

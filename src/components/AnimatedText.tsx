@@ -14,7 +14,8 @@ const AnimatedText: React.FC<({ text: string, hide?: boolean, onRest?: () => voi
       enter: { opacity: 1, translateY: 0 },
       leave: { opacity: 0, translateY: 1 },
       config: { tension: 300, friction: 80 },
-      onRest: onRest
+      onRest: onRest,
+      exitBeforeEnter: true
     });
 
     const AnimatedBox = animated(Box);

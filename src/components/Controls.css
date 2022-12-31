@@ -6,9 +6,9 @@
     flex-direction: column;
 }
 
-.controls > div {
+/* .controls > div {
     margin: 15px;
-}
+} */
 
 .tasks {
     display: flex;
