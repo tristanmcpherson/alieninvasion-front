@@ -19,6 +19,8 @@ import { ConnectionComponent } from './components/ConnectionComponent';
 import { Provider } from 'react-redux';
 import { store } from './store';
 
+import Game from "./components/Game";
+
 const withLoader = (Component: React.ComponentType) =>
 	<React.Suspense fallback={<Loader open={true} />}>
 		<Component></Component>
@@ -31,11 +33,15 @@ const routes: RouteObject[] = [
 	},
 	{
 		path: "/game",
-		element: withLoader(React.lazy(() => import("./components/Game")))
+		element: <Game></Game>
 	},
 	{
 		path: "/lobby",
 		element: withLoader(React.lazy(() => import("./components/Lobby")))
+	},
+	{
+		path: "/test",
+		element: withLoader(React.lazy(() => import("./components/Test")))
 	}
 ];
 

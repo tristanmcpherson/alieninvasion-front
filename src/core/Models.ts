@@ -17,6 +17,7 @@ export interface ILobby {
 export interface IGameState {
     lobby?: ILobby,
     tasks: Array<ITask>,
+    // ???, questioning this now lol
     // utilize store instead of socket directly
 	currentPlayerId: string|null,
     gameConfig: IGameConfig,

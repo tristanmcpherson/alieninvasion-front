@@ -1,6 +1,6 @@
 import { Box, Divider, Stack, Button } from '@mui/material';
 import React, { useEffect, useState } from "react";
-import { animated, useTransition } from '@react-spring/web';
+import { animated, useSpring, useTransition } from '@react-spring/web';
 import { Card } from "./Card";
 import { Loader } from "./Loader";
 import { IPlayer } from "../core/Models";
@@ -12,7 +12,7 @@ import { Icons } from '../images/Images';
 import { PlayerCard } from './PlayerCard';
 import AnimatedText from './AnimatedText';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { addTasks, changeCharacter, removePlayer, selectCurrentPlayer, selectFartianCount, selectLobby, setFartianCount, setLobby, setPlayerFaction } from '../slices/GameSlice';
+import { addTasks, changeCharacter, removePlayer, resetGame, selectCurrentPlayer, selectFartianCount, selectLobby, selectTasks, setFartianCount, setLobby, setPlayerFaction } from '../slices/GameSlice';
 import GroupedButtons from './GroupedButton';
 
 
@@ -21,6 +21,7 @@ const Lobby = () => {
 
 	const fartianCount = useAppSelector(selectFartianCount);
 	const lobby = useAppSelector(selectLobby);
+	const tasks = useAppSelector(selectTasks);
 	const currentPlayer = useAppSelector(selectCurrentPlayer);
 
 	const dispatch = useAppDispatch();
@@ -32,6 +33,13 @@ const Lobby = () => {
 	// useTimeout(() => {
 	// 	setShowCharacterSelection(true);
 	// }, currentCharacter ? null : 2000);
+
+	useEffect(() => {
+		if (tasks.length > 0) {
+			navigate({ pathname: "/game" });
+		}
+
+	}, [tasks]);
 
 	useEffect(() => {
 		setShowCharacterSelection(false);
@@ -88,13 +96,22 @@ const Lobby = () => {
 
 	console.log(lobby);
 
+	const [containerSpring, set] = useSpring(
+		() => ({ height: "0%" }),
+	);
+
+
 	const transitions = useTransition(lobby?.players ?? [], {
-		keys: (player: IPlayer) => player._id,
-		sort: (a) => a._id === currentPlayer?._id ? -1 : 0,
+		keys: (player: IPlayer) => player.name,
+		sort: (a: IPlayer) => a._id === currentPlayer?._id ? -1 : 0,
 		from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
 		enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
 		leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
+		onRest: () => {
+			set.start({ height: '100%' });
+		}
 	});
+
 
 	if (!lobby) {
 		console.log("No game lobby on mount. Using loader");
@@ -105,12 +122,18 @@ const Lobby = () => {
 		socket.emit("startGame", { numberOfFartians: fartianCount });
 	};
 
+	const leaveGame = () => {
+		dispatch(resetGame());
+		socket.emit("leaveGame");
+	}
+
+	const AnimatedStack = animated(Stack);
+
 	return <>
 		<CharacterSelect show={showCharacterSelection} onClose={() => {
 			setShowCharacterSelection(false)
 		}} />
 		<Card>
-			
 			<Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
 				<Stack direction="column" justifyContent={'center'} alignItems={'center'}>
 					<Box sx={{ color: 'text.secondary' }}>Lobby code</Box>
@@ -122,15 +145,18 @@ const Lobby = () => {
 				</Stack>
 				{/* <Box sx={{ color: 'text.primary', fontSize: 36 }}>{gameState.lobby!._id}</Box> */}
 				<Divider sx={{ width: '100%' }}></Divider>
-				<Stack maxHeight={"50vh"} sx={{ overflowY: "auto" }} direction={"column"}>
+				<AnimatedStack maxHeight={"50vh"} sx={{ overflowY: "auto", overflowX: "visible" }} direction={"column"}>
 					{transitions((style, item) => (
 						<animated.div style={style} key={item._id}>
 							<PlayerCard key={item._id} player={item} onCharacterSelect={() => setShowCharacterSelection(true)}></PlayerCard>
 						</animated.div>
 					))}
-				</Stack>
+				</AnimatedStack>
 				<Divider sx={{ width: '100%' }}></Divider>
-				<Button variant='outlined' onClick={() => startGame()}>Start Game</Button>
+				<Stack direction="row" spacing={5}>
+					<Button variant='outlined' color="error" onClick={() => leaveGame()}>Leave Game</Button>
+					<Button variant='outlined' onClick={() => startGame()}>Start Game</Button>
+				</Stack>
 			</Stack>
 		</Card>
 	</>;

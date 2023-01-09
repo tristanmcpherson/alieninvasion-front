@@ -15,6 +15,7 @@ export interface SharedEvents {
 export interface ClientEvents extends SharedEvents {
 	joinLobby: (lobbyId: string, name: string) => void;
 	startGame: (gameConfig: IGameConfig) => void;
+	leaveGame: () => void;
 	rejoinLobby: (lastPlayerId: string, lobbyId: string) => void;
 	createLobby: (name: string) => void;
 	characterSelected: (characterId: string) => void;
@@ -24,6 +25,7 @@ export interface ClientEvents extends SharedEvents {
 export interface ServerEvents extends SharedEvents {
 	lobbyJoined: (lobby: ILobby, player: IPlayer) => void;
 	lobbyLeft: (playerId: string) => void;
+	rejoinGame: (lobby: ILobby, tasks: ITask[], faction: Faction|null) => void;
 	startGame: (tasks: ITask[], faction: Faction) => void;
 	characterSelected: (playerId: string, characterId: string) => void;
 	updateTaskStatus: (task: ITask) => void;
@@ -31,6 +33,7 @@ export interface ServerEvents extends SharedEvents {
 
 export const socket: Socket<ServerEvents, ClientEvents> = io({
 	path: "/gameWs",
-	reconnectionDelay: 50
+	reconnectionDelay: 250,
+	reconnectionDelayMax: 250
 });
 

@@ -2,21 +2,19 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Faction, IGameState, ILobby, IPlayer, ITask } from "../core/Models";
 import { RootState } from "../store";
 
+export const initialGameState = {
+    currentPlayerId: null,
+    tasks: [],
+    gameConfig: { numberOfFartians: 1 },
+    shownFaction: false
+} as IGameState;
+
 export const gameStateSlice = createSlice({
     name: 'gameState',
     // separate gamestate from gameconfig and ui config
-    initialState: {
-        currentPlayerId: null, 
-        tasks: [], 
-        gameConfig: { numberOfFartians: 1 }, 
-        shownFaction: false 
-    } as IGameState,
+    initialState: initialGameState,
     reducers: {
-        resetGame: (state) => {
-            state.lobby = undefined;
-            state.currentPlayerId = null;
-            state.tasks = [];
-        },
+        resetGame: (state) => ({...initialGameState}),
         createLobby: (state, action: PayloadAction<string>) => {
             state.lobby = { _id: action.payload, players: [] };
         },
@@ -47,7 +45,12 @@ export const gameStateSlice = createSlice({
         },
         addPlayer: (state, action: PayloadAction<IPlayer>) => {
             if (state.lobby) {
-                state.lobby.players.push(action.payload);
+                const existing = state.lobby.players.find(player => player._id === action.payload._id);
+                if (existing) {
+                    state.lobby.players = state.lobby.players.map(player => player._id === action.payload._id ? action.payload : player);
+                } else {
+                    state.lobby.players.push(action.payload);
+                }
             }
         },
         removePlayer: (state, action: PayloadAction<string>) => {
@@ -84,7 +87,7 @@ export const gameStateSlice = createSlice({
     }
 });
 
-export const { resetGame, createLobby, setLobby, setFartianCount, setCurrentPlayer, setPlayerFaction, removePlayer, addPlayer, changeCharacter, addTasks, completeTask, sabotageTask } = gameStateSlice.actions;
+export const { resetGame, createLobby, setLobby, setFartianCount, setCurrentPlayer, setPlayerFaction, removePlayer, addPlayer, changeCharacter, addTasks, completeTask, sabotageTask, setShownFaction } = gameStateSlice.actions;
 
 export const selectCurrentPlayer = (state: RootState) => state.gameState.lobby?.players.find(player => player._id === state.gameState.currentPlayerId);
 export const selectLobby = (state: RootState) => state.gameState.lobby;

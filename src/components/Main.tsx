@@ -87,8 +87,8 @@ function App() {
 		<div className={styles.header}>
 			<Box marginTop={{ xs: 8, md: 24 }}>
 				<Stack margin={{ xs: 4, md: 8 }}>
-					<AnimatedTypography style={logoTransition} fontSize={96} sx={{ fontFamily: 'Under Authority' }} variant="h3">Fartian</AnimatedTypography>
-					<AnimatedTypography style={fadeIn} fontSize={32} sx={{ fontFamily: 'Bebas', letterSpacing: "31px", textIndent: "26px", transform: "scale(1, 1.5)" }} variant="h3">INVASION</AnimatedTypography>
+					<AnimatedTypography unselectable="on" style={{ userSelect: "none", ...logoTransition }} fontSize={96} sx={{ fontFamily: 'Under Authority' }} variant="h3">Fartian</AnimatedTypography>
+					<AnimatedTypography unselectable="on" style={{ userSelect: "none", ...fadeIn }} fontSize={32} sx={{ fontFamily: 'Bebas', letterSpacing: "31px", textIndent: "26px", transform: "scale(1, 1.5)" }} variant="h3">INVASION</AnimatedTypography>
 					<Stack sx={{ margin: { xs: 8, md: 12 } }} direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 4, md: 12 }} display={"flex"} justifyContent={"center"}>
 						{transition((style, button) => (
 							<animated.div style={style}>{button}</animated.div>
